@@ -51,4 +51,19 @@ Extra tasks
 
 #### 1. collect the logs (1 point) (and eventually the metrics, 2 points) transparently and store them in ElasticSearch
 
+Logs are collected by fluentd from Docker and stored in Kibana, indexed by ElasticSearch. 
+Everything was configured based on following tutorial: 
+
+- https://docs.fluentd.org/v/0.12/container-deployment/docker-compose
+
+Furthermore, I added Docker metrics into Kibana as well based on following tutorial:
+
+- http://localhost:5601/app/kibana#/home/tutorial/dockerMetrics
+
+Due to github file size limit, I left only those files that were amended in `metricbeat`.
+
+All changes are reflected in my codebase.
+
 #### 2. can you optimize the Dockerfile (docker/Dockerfile) so the image will be created only once? (2 points)
+
+Not done.

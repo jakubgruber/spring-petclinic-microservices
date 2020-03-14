@@ -40,6 +40,12 @@ services:
     entrypoint: ["./dockerize","-wait=tcp://discovery-server:8761","-timeout=60s", "-wait=tcp://database-service:3306", "-timeout=60s","--","java", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
     ports:
     - 8081:8081
+    links:
+      - fluentd
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
 
   visits-service:
     image: springcommunity/spring-petclinic-visits-service
@@ -52,6 +58,12 @@ services:
     entrypoint: ["./dockerize","-wait=tcp://discovery-server:8761","-timeout=60s", "-wait=tcp://database-service:3306", "-timeout=60s", "--","java", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
     ports:
      - 8082:8082
+    links:
+      - fluentd
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
 
   vets-service:
     image: springcommunity/spring-petclinic-vets-service
@@ -64,6 +76,12 @@ services:
     entrypoint: ["./dockerize","-wait=tcp://discovery-server:8761","-timeout=60s", "-wait=tcp://database-service:3306", "-timeout=60s", "--","java", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
     ports:
      - 8083:8083
+    links:
+      - fluentd
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
 
   api-gateway:
     image: springcommunity/spring-petclinic-api-gateway
@@ -75,6 +93,12 @@ services:
     entrypoint: ["./dockerize","-wait=tcp://discovery-server:8761","-timeout=60s","--","java", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
     ports:
      - 8080:8080
+    links:
+      - fluentd
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
 
   tracing-server:
     image: openzipkin/zipkin
@@ -111,6 +135,36 @@ services:
     mem_limit: 256M
     ports:
     - 9091:9090
+
+
+# --- Log collection ---
+  fluentd:
+    build: ./fluentd
+    volumes:
+      - ./fluentd/conf:/fluentd/etc
+    links:
+      - "elasticsearch"
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+
+  elasticsearch:
+      image: elasticsearch:7.6.1
+      container_name: elasticsearch
+      expose:
+        - 9200
+      ports:
+        - "9200:9200"
+      environment:
+        node.name: elasticsearch
+        cluster.initial_master_nodes: elasticsearch
+
+  kibana:
+      image: kibana:7.6.1
+      links:
+        - "elasticsearch"
+      ports:
+        - "5601:5601"
 
 # DB volume
 volumes:
