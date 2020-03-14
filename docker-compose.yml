@@ -18,6 +18,17 @@ services:
     ports:
      - 8761:8761
 
+  database-service:
+    image: mysql:5.7.8
+    container_name: database-service
+    environment:
+      MYSQL_ROOT_PASSWORD: petclinic
+      MYSQL_DATABASE: petclinic
+    ports:
+      - 3306:3306
+    volumes:
+    - database-service:/var/lib/mysql
+
   customers-service:
     image: springcommunity/spring-petclinic-customers-service
     container_name: customers-service
@@ -25,7 +36,8 @@ services:
     depends_on:
      - config-server
      - discovery-server
-    entrypoint: ["./dockerize","-wait=tcp://discovery-server:8761","-timeout=60s","--","java", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+     - database-service
+    entrypoint: ["./dockerize","-wait=tcp://discovery-server:8761","-timeout=60s", "-wait=tcp://database-service:3306", "-timeout=60s","--","java", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
     ports:
     - 8081:8081
 
@@ -36,7 +48,8 @@ services:
     depends_on:
      - config-server
      - discovery-server
-    entrypoint: ["./dockerize","-wait=tcp://discovery-server:8761","-timeout=60s","--","java", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+     - database-service
+    entrypoint: ["./dockerize","-wait=tcp://discovery-server:8761","-timeout=60s", "-wait=tcp://database-service:3306", "-timeout=60s", "--","java", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
     ports:
      - 8082:8082
 
@@ -47,7 +60,8 @@ services:
     depends_on:
      - config-server
      - discovery-server
-    entrypoint: ["./dockerize","-wait=tcp://discovery-server:8761","-timeout=60s","--","java", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+     - database-service
+    entrypoint: ["./dockerize","-wait=tcp://discovery-server:8761","-timeout=60s", "-wait=tcp://database-service:3306", "-timeout=60s", "--","java", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap", "-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
     ports:
      - 8083:8083
 
@@ -97,3 +111,7 @@ services:
     mem_limit: 256M
     ports:
     - 9091:9090
+
+# DB volume
+volumes:
+  database-service:

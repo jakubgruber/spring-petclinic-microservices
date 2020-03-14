@@ -5,12 +5,17 @@ Tasks
 The configuration is stored in git repository. URL of the repository is defined in `spring-petclinic-config-server/src/main/resources/bootstrap.yml`
  as a spring.cloud.config.server.git.uri property.
  
-I forked the repository and changed the URL to `https://github.com/jakubgruber/spring-petclinic-microservices-config`.
-I added `custom.message` property to `api-gateway.yml` and used in it `ApiGatewayController.java`.
+Solution:
+- I forked the repository and changed the URL to `https://github.com/jakubgruber/spring-petclinic-microservices-config`.
+- I added `custom.message` property to `api-gateway.yml`
+- Used the property in `ApiGatewayController.java`.
 
 Logged output from the service when opening any pet owner:
 
 `api-gateway          | 2020-03-14 15:05:57.334  INFO [api-gateway,60115b3a22e6ae74,60115b3a22e6ae74,true] 18 --- [or-http-epoll-1] o.s.s.p.a.b.web.ApiGatewayController     : Custom message - hello from cloud config - Jakub Gruber`
+
+
+The config was also changed in order to accomplish task 4. 
 
 --- 
         
@@ -31,6 +36,13 @@ Again, via dockerize plugin. Below is an example how to wait for multiple servic
 ---   
         
 #### 4. the services are using an in-memory database; the data will be lost when the “network” is stopped. Change whatever must be changed to stored data for each service in a separate database (1 point)
+
+Solution:
+ - add a new service to `docker-compose.yml` (define database-service)
+ - configure dependency of services needing the database
+ - update `docker/Dockerfile` and add a new active profile - `mysql`
+ - use the configuration from git config repository for `mysql` profile
+ - in the config repository, change the database url and initialization-mode 
 
 ---
 
